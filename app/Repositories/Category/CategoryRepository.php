@@ -30,6 +30,12 @@ class CategoryRepository implements CategoryInterface
     public function all()
     {
         $data = Category::latest('id')
+        ->when(request('name'), function($query){
+            $query->where(['name' => request('name')]);
+        })
+        ->when(request('code'), function($query){
+            $query->where(['code' => request('code')]);
+        })
         ->get();
         return $data;
     }
@@ -41,6 +47,16 @@ class CategoryRepository implements CategoryInterface
     public function allPaginate($perPage)
     {
         $data = Category::latest('id')
+        ->when(request('search'), function($query){
+            $query->where('name', 'like', '%'.request('search').'%')
+                ->orWhere('code', 'like', '%'.request('search').'%');
+        })
+        ->when(request('name'), function($query){
+            $query->where(['name' => request('name')]);
+        })
+        ->when(request('code'), function($query){
+            $query->where(['code' => request('code')]);
+        })
         ->paginate($perPage);
 
         return $data;
