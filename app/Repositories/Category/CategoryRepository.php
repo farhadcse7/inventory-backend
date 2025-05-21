@@ -3,10 +3,12 @@
 namespace App\Repositories\Category;
 
 use App\Models\Category;
+use App\Service\FileUploadService;
 use Illuminate\Support\Str;
 
 class CategoryRepository implements CategoryInterface
 {
+    private $file_path = "category";
     /*
     * @param $data
     * @return mixed|void
@@ -20,6 +22,13 @@ class CategoryRepository implements CategoryInterface
             'code' => $request_data->code,
         ]);
 
+        /* image upload */
+        $image_path = (new FileUploadService())->imageUpload($request_data, $data, $this->file_path);
+
+        /* Update file stage */
+        $data->update([
+            'file' => $image_path
+        ]);
         return $this->show($data->id);
     }
 
@@ -84,7 +93,13 @@ class CategoryRepository implements CategoryInterface
             'slug' => Str::slug($request_data->name),
             'code' => $request_data->code,
         ]);
+        /* image upload */
+        $image_path = (new FileUploadService())->imageUpload($request_data, $data, $this->file_path);
 
+        /* Update file stage */
+        $data->update([
+            'file' => $image_path
+        ]);
         return $data;
     }
 
